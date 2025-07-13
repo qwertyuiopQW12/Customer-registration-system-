@@ -1,0 +1,21 @@
+{
+  "name": "نظام تسجيل العملاء من فيوجن برو",
+  "short_name": "فيوجن برو",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#bfa200",
+  "description": "نظام تسجيل العملاء من فيوجن برو",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>لوحة إدارة المستخدمين - نظام الصراف</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Arial', sans-serif;
+      background-color: #ffffff;
+      padding: 30px;
+      direction: rtl;
+      color: #333;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header img {
+      width: 120px;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      color: #bfa200;
+    }
+
+    .form-box {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    input {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      width: 180px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn-add {
+      background: linear-gradient(to right, #bfa200, #d4b400);
+      color: black;
+    }
+
+    .btn-add:hover {
+      background: linear-gradient(to right, #e0c200, #ffe100);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    table th, table td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+
+    table th {
+      background-color: #f5f5f5;
+    }
+
+    .btn-edit {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-delete {
+      background-color: #cc0000;
+      color: white;
+    }
+
+    .btn-edit:hover {
+      background-color: #3399ff;
+    }
+
+    .btn-delete:hover {
+      background-color: #e60000;
+    }
+  </style>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getDatabase, ref, set, remove, get, child, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCCEvGjvP8gw12mFYnxV_XPOHhM_zHJB_U",
+      authDomain: "migad-9aa39.firebaseapp.com",
+      databaseURL: "https://migad-9aa39-default-rtdb.firebaseio.com",
+      projectId: "migad-9aa39",
+      storageBucket: "migad-9aa39.appspot.com",
+      messagingSenderId: "82386152423",
+      appId: "1:82386152423:web:fb466405bbc8c12d2beb42",
+      measurementId: "G-2LCCDX0159"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // دالة لإضافة مستخدم
+    window.addUser = function () {
+      const username = document.getElementById("new-username").value.trim();
+      const password = document.getElementById("new-password").value.trim();
+
+      if (!username || !password) return alert("يرجى إدخال الاسم وكلمة المرور");
+
+      set(ref(db, "users/" + username), {
+        password: password
+      }).then(() => {
+        document.getElementById("new-username").value = "";
+        document.getElementById("new-password").value = "";
+        loadUsers();
+      });
+    }
+
+    // دالة لحذف مستخدم
+    window.deleteUser = function (username) {
+      if (confirm(`هل تريد حذف المستخدم: ${username}؟`)) {
+        remove(ref(db, "users/" + username)).then(loadUsers);
+      }
+    }
+
+    // دالة لتعديل كلمة مرور
+    window.editUser = function (username) {
+      const newPass = prompt("ادخل كلمة المرور الجديدة للمستخدم: " + username);
+      if (newPass) {
+        update(ref(db, "users/" + username), { password: newPass }).then(loadUsers);
+      }
+    }
+
+    // تحميل المستخدمين
+    window.loadUsers = function () {
+      const table = document.getElementById("user-table");
+      table.innerHTML = "";
+
+      const dbRef = ref(db);
+      get(child(dbRef, "users")).then(snapshot => {
+        if (snapshot.exists()) {
+          const users = snapshot.val();
+          for (let username in users) {
+            const pass = users[username].password;
+            table.innerHTML += `
+              <tr>
+                <td>${username}</td>
+                <td>${pass}</td>
+                <td><button class="btn-edit" onclick="editUser('${username}')">تعديل</button></td>
+                <td><button class="btn-delete" onclick="deleteUser('${username}')">حذف</button></td>
+              </tr>
+            `;
+          }
+        } else {
+          table.innerHTML = `<tr><td colspan="4">لا يوجد مستخدمين</td></tr>`;
+        }
+      });
+    }
+
+    window.addEventListener("load", loadUsers);
+  </script>
+</head>
+
+
+<!-- رابط ملف المانيفست -->
+<link rel="manifest" href="manifest.json">
+
+<!-- لون واجهة التطبيق في الهاتف -->
+<meta name="theme-color" content="#bfa200">
+
+
+<body>
+
+  <div class="header">
+    <img src="your-logo.png" alt="شعار الشركة"> <!-- غيّر هذا الرابط لصورتك -->
+    <h1>لوحة إدارة المستخدمين</h1>
+  </div>
+
+  <div class="form-box">
+    <input type="text" id="new-username" placeholder="اسم المستخدم الجديد">
+    <input type="text" id="new-password" placeholder="كلمة المرور">
+    <button class="btn-add" onclick="addUser()">➕ إضافة</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>اسم المستخدم</th>
+        <th>كلمة المرور</th>
+        <th>تعديل</th>
+        <th>حذف</th>
+      </tr>
+    </thead>
+    <tbody id="user-table">
+      <!-- المستخدمين هنا -->
+    </tbody>
+  </table>
+
+
+
+
+</body>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js')
+    .then(() => console.log("✅ Service Worker تم تسجيله"))
+    .catch(err => console.error("❌ فشل تسجيل Service Worker", err));
+  }
+</script>
+
+</html>
